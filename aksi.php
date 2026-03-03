@@ -151,7 +151,11 @@ if (isset($_GET['selesai_pinjam']) && $role_user == 'petugas') {
     $id_alt = $data_pjm['id_alat'];
 
     mysqli_query($conn, "UPDATE peminjaman SET status_pjm = 'selesai', tgl_kembali = NOW(), kondisi_akhir = '$kondisi', denda = '$denda' WHERE id_peminjaman = $id_pjm");
-    mysqli_query($conn, "UPDATE alat SET stok = stok + 1 WHERE id_alat = $id_alt");
+    
+    // MODIFIKASI: Stok hanya kembali jika kondisi 'Baik'
+    if (strpos(strtolower($kondisi), 'baik') !== false) {
+        mysqli_query($conn, "UPDATE alat SET stok = stok + 1 WHERE id_alat = $id_alt");
+    }
 
     header("location: dashboard.php?pesan=barang_kembali");
     exit();
@@ -220,7 +224,11 @@ if (isset($_GET['final_kembali']) && $role_user == 'petugas') {
                         denda = '$total_denda' 
                         WHERE id_peminjaman = $id_pjm");
     
-    mysqli_query($conn, "UPDATE alat SET stok = stok + 1 WHERE id_alat = $id_alt");
+    // MODIFIKASI: Stok hanya kembali jika kondisi 'Baik'
+    // Jika mengandung kata 'rusak' atau 'hilang', query di bawah ini tidak jalan
+    if (strpos(strtolower($kondisi_akhir), 'rusak') === false && strpos(strtolower($kondisi_akhir), 'hilang') === false) {
+        mysqli_query($conn, "UPDATE alat SET stok = stok + 1 WHERE id_alat = $id_alt");
+    }
 
     // Kirim data rincian ke URL agar alert di dashboard bisa menampilkan breakdown-nya
     header("location: dashboard.php?page=riwayat&pesan=konfirmasi_berhasil&dk=$denda_kondisi&dt=$denda_terlambat&tt=$total_denda&hr=$jumlah_hari");

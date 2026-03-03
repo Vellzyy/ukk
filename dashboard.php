@@ -37,10 +37,9 @@ if (isset($_GET['pesan']) && $_GET['pesan'] == 'konfirmasi_berhasil') {
     }
 }
 
-// --- LOGIKA CEK STOK KRITIS UNTUK PETUGAS (PENTING) ---
+// --- LOGIKA CEK STOK KRITIS ---
 $stok_kritis = [];
-if ($role == 'petugas') {
-    // Mengambil alat yang stoknya antara 1 sampai 2
+if ($role == 'petugas' || $role == 'admin') {
     $cek_stok = mysqli_query($conn, "SELECT nama_alat, stok FROM alat WHERE stok < 3 AND stok > 0");
     while ($row_kritis = mysqli_fetch_assoc($cek_stok)) {
         $stok_kritis[] = $row_kritis['nama_alat'] . " (Sisa: " . $row_kritis['stok'] . ")";
@@ -200,7 +199,6 @@ if ($role == 'petugas') {
 
         .alert-stok { background: #442726; color: #ff9b9b; padding: 12px; border-radius: 12px; margin-bottom: 24px; }
         
-        /* Style Tambahan untuk Peringatan Stok Kritis Petugas */
         .alert-kritis { background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; color: #ffc107; padding: 15px; border-radius: 15px; margin-bottom: 24px; }
     </style>
     
@@ -236,26 +234,37 @@ if ($role == 'petugas') {
         function requestKembali(id) {
             let kondisi = prompt("🔍 Sebutkan kondisi barang saat ini (Contoh: Baik/Rusak/Hilang):", "Baik");
             if (kondisi) {
-                window.location.href = "aksi.php?request_kembali=" + id + "&kondisi=" + encodeURIComponent(kondisi);
+                // Normalisasi input agar case-insensitive
+                let k_final = kondisi.charAt(0).toUpperCase() + kondisi.slice(1).toLowerCase();
+                window.location.href = "aksi.php?request_kembali=" + id + "&kondisi=" + encodeURIComponent(k_final);
             }
         }
 
         function konfirmasiDiterima(id, tglPinjam, kondisiSiswa) {
-            let dendaKondisi = 0;
-            if (kondisiSiswa.toLowerCase().includes("hilang")) {
-                dendaKondisi = 50000;
-            }
+            // Petugas memvalidasi kondisi barang (Baik/Rusak/Hilang)
+            let kondisiFinal = prompt("📥 Konfirmasi kondisi barang yang diterima (Baik/Rusak/Hilang):", kondisiSiswa);
+            
+            if (kondisiFinal) {
+                let dendaKondisi = 0;
+                let k_lower = kondisiFinal.toLowerCase();
+                let pesanTambahan = "";
 
-            let pesan = "Siswa melaporkan kondisi: " + kondisiSiswa;
-            if (dendaKondisi > 0) {
-                pesan += "\n⚠️ PERINGATAN: Barang Hilang! Denda otomatis Rp 50.000 akan dikenakan.";
-            }
-            pesan += "\n\nApakah barang fisik sudah diterima dengan benar? ✅";
+                // Logika denda kondisi (Sesuaikan nilainya di sini)
+                if (k_lower.includes("hilang")) {
+                    dendaKondisi = 50000;
+                    pesanTambahan = "\n⚠️ BARANG HILANG: Stok TIDAK akan bertambah! Denda Rp 50.000";
+                } else if (k_lower.includes("rusak")) {
+                    dendaKondisi = 20000;
+                    pesanTambahan = "\n⚠️ BARANG RUSAK: Stok TIDAK akan bertambah! Denda Rp 20.000";
+                }
 
-            if (confirm(pesan)) {
-                window.location.href = "aksi.php?final_kembali=" + id + 
-                                       "&kondisi=" + encodeURIComponent(kondisiSiswa) + 
-                                       "&denda_kondisi=" + dendaKondisi;
+                let pesan = "Konfirmasi pengembalian alat?\nStatus: " + kondisiFinal + pesanTambahan;
+
+                if (confirm(pesan)) {
+                    window.location.href = "aksi.php?final_kembali=" + id + 
+                                           "&kondisi=" + encodeURIComponent(kondisiFinal) + 
+                                           "&denda_kondisi=" + dendaKondisi;
+                }
             }
         }
 
@@ -305,15 +314,15 @@ if ($role == 'petugas') {
                 $stok_nol = mysqli_query($conn, "SELECT nama_alat FROM alat WHERE stok = 0");
                 if(mysqli_num_rows($stok_nol) > 0): ?>
                     <div class="alert-stok">
-                        <marquee>🚨 <strong>STOK HABIS (0):</strong> Segera update stok alat yang kosong! 🚨</marquee>
+                        <marquee>🚨 <strong>STOK HABIS (0):</strong> Segera hubungi Admin untuk update stok alat! 🚨</marquee>
                     </div>
                 <?php endif; 
             endif; ?>
 
-            <?php if ($role == 'petugas' && !empty($stok_kritis)): ?>
+            <?php if (($role == 'petugas' || $role == 'admin') && !empty($stok_kritis)): ?>
                 <div class="alert-kritis">
                     <strong>⚠️ PERINGATAN STOK TIPIS:</strong><br>
-                    <small>Alat berikut stoknya sudah kurang dari 3, segera lakukan penambahan:</small>
+                    <small>Alat berikut stoknya sudah kurang dari 3, harap segera ditindaklanjuti:</small>
                     <ul style="margin: 8px 0 0 0; font-size: 13px; font-weight: 500;">
                         <?php foreach ($stok_kritis as $item): ?>
                             <li><?= $item ?></li>
@@ -347,6 +356,9 @@ if ($role == 'petugas') {
                         <?php endwhile; else: echo "<tr><td colspan='4' align='center'>☕ Tidak ada antrean aksi</td></tr>"; endif; ?>
                     </table>
                 </div>
+            <?php endif; ?>
+
+            <?php if ($role == 'admin') : ?>
                 <div class="content-card">
                     <h3>➕ Tambah Jenis Alat</h3>
                     <form action="aksi.php" method="POST" style="display:flex; gap:10px;">
@@ -363,7 +375,14 @@ if ($role == 'petugas') {
                 
                 <?php if ($role == 'admin' || $role == 'petugas') : ?>
                     <table class="tabel-stok">
-                        <tr><th>Nama Alat</th><th>Stok</th><?php if($role == 'petugas'): ?> <th>Update</th> <th>Aksi</th> <?php endif; ?></tr>
+                        <tr>
+                            <th>Nama Alat</th>
+                            <th>Stok</th>
+                            <?php if($role == 'admin'): ?>
+                                <th>Update</th> 
+                                <th>Aksi</th>
+                            <?php endif; ?>
+                        </tr>
                         <?php 
                         $sql_alat = mysqli_query($conn, "SELECT * FROM alat");
                         while($a = mysqli_fetch_assoc($sql_alat)) : 
@@ -377,25 +396,19 @@ if ($role == 'petugas') {
                             elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji_tabel = "🏓";
                             elseif(strpos($nama_kcl, 'matras') !== false) $emoji_tabel = "🧘";
                             elseif(strpos($nama_kcl, 'lompat') !== false) $emoji_tabel = "🏃";
-                            elseif (strpos($n, 'kasti') !== false) $emoji_tabel = "🥎";
-                            elseif (strpos($n, 'skipping') !== false) $emoji_tabel = "🪢";
-                            elseif (strpos($n, 'american football') !== false) $emoji_tabel = "🏈";
-                            elseif (strpos($n, 'baseball') !== false) $emoji_tabel = "⚾️";
-                            elseif (strpos($n, 'hockey') !== false) $emoji_tabel = "🏒";
-                            elseif (strpos($n, 'golf') !== false) $emoji_tabel = "🏑";
-                            elseif (strpos($n, 'kriket') !== false) $emoji_tabel = "🏏";
-                            elseif (strpos($n, 'boomerang') !== false) $emoji_tabel = "🪃";
-                            elseif (strpos($n, 'lacrosse') !== false) $emoji_tabel = "🥍";
                         ?>
                         <tr>
                             <td>
                                 <div class="table-icon-wrapper">
                                     <div class="table-emoji"><?= $emoji_tabel ?></div>
-                                    <b><?= $a['nama_alat'] ?></b>
+                                    <div style="flex-grow:1">
+                                        <b><?= $a['nama_alat'] ?></b>
+                                    </div>
                                 </div>
                             </td>
                             <td><span style="font-weight:bold; color:<?= $a['stok'] > 0 ? ($a['stok'] < 3 ? '#ffc107' : '#00ff88') : '#ff4d4d' ?>;"><?= $a['stok'] ?> Unit</span></td>
-                            <?php if($role == 'petugas'): ?>
+                            
+                            <?php if($role == 'admin'): ?>
                             <td>
                                 <form action="aksi.php" method="POST" style="display:flex; gap:5px;">
                                     <input type="hidden" name="id_alat" value="<?= $a['id_alat'] ?>">
@@ -414,24 +427,9 @@ if ($role == 'petugas') {
                         $sql_alat = mysqli_query($conn, "SELECT * FROM alat");
                         while($a = mysqli_fetch_assoc($sql_alat)) : 
                             $nama_kcl = strtolower((string)($a['nama_alat'] ?? ''));
-                            $n = $nama_kcl;
                             $emoji = "⚽"; 
                             if(strpos($nama_kcl, 'basket') !== false) $emoji = "🏀";
                             elseif(strpos($nama_kcl, 'voli') !== false) $emoji = "🏐";
-                            elseif(strpos($nama_kcl, 'raket') !== false || strpos($nama_kcl, 'badminton') !== false) $emoji = "🏸";
-                            elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
-                            elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji = "🏓";
-                            elseif(strpos($nama_kcl, 'matras') !== false) $emoji = "🧘";
-                            elseif(strpos($nama_kcl, 'lompat') !== false) $emoji = "🏃";
-                            elseif (strpos($n, 'kasti') !== false) $emoji = "🥎";
-                            elseif (strpos($n, 'skipping') !== false) $emoji = "🪢";
-                            elseif (strpos($n, 'american football') !== false) $emoji = "🏈";
-                            elseif (strpos($n, 'baseball') !== false) $emoji = "⚾️";
-                            elseif (strpos($n, 'hockey') !== false) $emoji = "🏒";
-                            elseif (strpos($n, 'golf') !== false) $emoji = "🏑";
-                            elseif (strpos($n, 'kriket') !== false) $emoji = "🏏";
-                            elseif (strpos($n, 'boomerang') !== false) $emoji = "🪃";
-                            elseif (strpos($n, 'lacrosse') !== false) $emoji = "🥍";
                         ?>
                         <div class="card-item">
                             <span class="item-icon"><?= $emoji ?></span>
@@ -523,7 +521,13 @@ if ($role == 'petugas') {
             <div class="content-card">
                 <h3>📜 Daftar Peminjaman Aktif</h3>
                 <table>
-                    <tr><th>Nama Peminjam</th><th>Alat</th><th>Tgl Pinjam</th><th>Status</th></tr>
+                    <tr>
+                        <th>Nama Peminjam</th>
+                        <th>Alat</th>
+                        <th>Tgl Pinjam</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
                     <?php
                     $f = ($role == 'peminjam') ? "AND peminjaman.id_user = '$id_user_skrg'" : "";
                     $res_aktif = mysqli_query($conn, "SELECT peminjaman.*, users.username, alat.nama_alat FROM peminjaman JOIN users ON peminjaman.id_user = users.id_user JOIN alat ON peminjaman.id_alat = alat.id_alat WHERE status_pjm NOT IN ('selesai', 'ditolak') $f ORDER BY id_peminjaman DESC");
@@ -532,41 +536,75 @@ if ($role == 'petugas') {
                         <td>👤 <?= $l['username'] ?></td>
                         <td>📦 <?= $l['nama_alat'] ?></td>
                         <td>🗓️ <?= $l['tgl_minta'] ?></td>
-                        <td><span class="status-tag waiting">⏳ <?= $l['status_pjm'] ?></span></td>
+                        <td>
+                            <span class="status-tag <?= ($l['status_pjm'] == 'disetujui') ? 'ready' : 'waiting' ?>">
+                                <?= strtoupper($l['status_pjm']) ?>
+                            </span>
+                        </td>
+                        <td>
+                            <?php if($role == 'peminjam' && $l['status_pjm'] == 'disetujui'): ?>
+                                <button onclick="requestKembali(<?= $l['id_peminjaman'] ?>)" class="btn-action btn-warning">🚀 Kembalikan</button>
+                            <?php elseif($l['status_pjm'] == 'menunggu_kembali'): ?>
+                                <small style="color: #93959c;">⏳ Menunggu Konfirmasi</small>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     <?php endwhile; ?>
                 </table>
             </div>
 
-        <?php elseif ($page == 'riwayat'): ?>
+<?php elseif ($page == 'riwayat'): ?>
             <div class="content-card">
                 <h3>📖 Riwayat Aktivitas Lengkap</h3>
                 <table>
-                    <thead><tr><th>User</th><th>Alat</th><th>Tgl Pinjam</th><th>Tgl Kembali</th><th>Denda</th><th>Status</th><th>Keterangan</th><?php if($role == 'petugas'): ?><th>Aksi</th><?php endif; ?></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Alat</th>
+                            <th>Tgl Pinjam</th>
+                            <th>Tgl Kembali</th>
+                            <th>Denda</th>
+                            <th>Status</th>
+                            <th>Kondisi/Ket</th>
+                            <?php if($role == 'petugas' || $role == 'admin'): ?>
+                                <th>Aksi</th>
+                            <?php endif; ?>
+                        </tr>
+                    </thead>
                     <tbody>
                         <?php
                         $f = ($role == 'peminjam') ? "AND peminjaman.id_user = '$id_user_skrg'" : "";
                         $res_log = mysqli_query($conn, "SELECT peminjaman.*, users.username, alat.nama_alat FROM peminjaman JOIN users ON peminjaman.id_user = users.id_user JOIN alat ON peminjaman.id_alat = alat.id_alat WHERE status_pjm IN ('selesai', 'ditolak') $f ORDER BY id_peminjaman DESC");
+                        
                         while($log = mysqli_fetch_assoc($res_log)): 
                             $status_class = ($log['status_pjm'] == 'selesai') ? 'ready' : 'ditolak';
                             $tgl_kembali = ($log['status_pjm'] == 'selesai') ? $log['tgl_kembali'] : '-';
                             $denda_nilai = $log['denda'] ?? 0;
                             $denda_teks = ($denda_nilai == 0 && $log['status_pjm'] == 'selesai') ? "✅ Lunas" : "Rp " . number_format($denda_nilai, 0, ',', '.');
-                            $keterangan = ($log['status_pjm'] == 'ditolak') ? ($log['alasan_tolak'] ?? '-') : ($log['kondisi_peminjam'] ?? '-');
+                            
+                            // Perbaikan variabel: kita pakai nama yang konsisten
+                            $keterangan_tampil = $log['kondisi_akhir'] ?? $log['alasan_tolak'] ?? '-';
                         ?>
                         <tr>
                             <td><b>👤 <?= $log['username'] ?></b></td>
                             <td>📦 <?= $log['nama_alat'] ?></td>
                             <td><small>🗓️ <?= $log['tgl_minta'] ?></small></td>
                             <td><small>🔙 <?= $tgl_kembali ?></small></td>
-                            <td style="color: <?= ($denda_nilai == 0) ? '#00ff88' : '#ff4d4d' ?>; font-weight: bold;"><?= $denda_teks ?></td>
-                            <td><span class="status-tag <?= $status_class ?>"><?= $log['status_pjm'] ?></span></td>
-                            <td><i style="font-size: 12px; color: #93959c;"><?= $keterangan ?></i></td>
-                            <?php if($role == 'petugas'): ?>
+                            <td style="color: <?= ($denda_nilai == 0) ? '#00ff88' : '#ff4d4d' ?>; font-weight: bold;">
+                                <?= $denda_teks ?>
+                            </td>
+                            <td><span class="status-tag <?= $status_class ?>"><?= strtoupper($log['status_pjm']) ?></span></td>
+                            <td><i style="font-size: 12px; color: #93959c;"><?= htmlspecialchars($keterangan_tampil) ?></i></td>
+        
+                            <?php if($role == 'petugas' || $role == 'admin'): ?>
                             <td>
                                 <?php if($denda_nilai > 0): ?>
                                     <a href="aksi.php?lunasi_denda=<?= $log['id_peminjaman'] ?>" class="btn-action btn-success" style="padding: 5px 10px; font-size: 10px;" onclick="return confirm('Denda sudah dibayar lunas? 💸')">💸 LUNASI</a>
-                                <?php else: echo "-"; endif; ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
                             </td>
                             <?php endif; ?>
                         </tr>
@@ -575,6 +613,3 @@ if ($role == 'petugas') {
                 </table>
             </div>
         <?php endif; ?>
-    </div>
-</body>
-</html>
