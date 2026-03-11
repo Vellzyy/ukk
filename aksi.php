@@ -49,8 +49,9 @@ if (isset($_GET['hapus_user']) && $role_user == 'admin') {
     exit();
 }
 
-// --- 4. PETUGAS: TAMBAH ALAT BARU ---
-if (isset($_POST['tambah_alat']) && $role_user == 'petugas') {
+// --- 4. PETUGAS & ADMIN: TAMBAH ALAT BARU ---
+// Perbaikan: Menambahkan || $role_user == 'admin' agar admin bisa akses
+if (isset($_POST['tambah_alat']) && ($role_user == 'petugas' || $role_user == 'admin')) {
     $nama = mysqli_real_escape_string($conn, $_POST['nama_alat']);
     $stok = (int)$_POST['stok'];
     
@@ -59,8 +60,9 @@ if (isset($_POST['tambah_alat']) && $role_user == 'petugas') {
     exit();
 }
 
-// --- 5. PETUGAS: UPDATE (TAMBAH) STOK ALAT ---
-if (isset($_POST['update_stok']) && $role_user == 'petugas') {
+// --- 5. PETUGAS & ADMIN: UPDATE (TAMBAH) STOK ALAT ---
+// Perbaikan: Menambahkan || $role_user == 'admin' agar admin bisa akses
+if (isset($_POST['update_stok']) && ($role_user == 'petugas' || $role_user == 'admin')) {
     $id_alt = (int)$_POST['id_alat'];
     $jumlah_tambah = (int)$_POST['jumlah_tambah'];
 
@@ -69,8 +71,9 @@ if (isset($_POST['update_stok']) && $role_user == 'petugas') {
     exit();
 }
 
-// --- 6. PETUGAS: HAPUS ALAT ---
-if (isset($_GET['hapus']) && $role_user == 'petugas') {
+// --- 6. PETUGAS & ADMIN: HAPUS ALAT ---
+// Perbaikan: Menambahkan || $role_user == 'admin' agar admin bisa akses
+if (isset($_GET['hapus']) && ($role_user == 'petugas' || $role_user == 'admin')) {
     $id_alt = (int)$_GET['hapus'];
     mysqli_query($conn, "DELETE FROM alat WHERE id_alat = $id_alt");
     header("location: dashboard.php?pesan=alat_dihapus");
@@ -161,8 +164,8 @@ if (isset($_GET['selesai_pinjam']) && $role_user == 'petugas') {
     exit();
 }
 
-// --- 11. PETUGAS: LUNASI DENDA ---
-if (isset($_GET['lunasi_denda']) && $role_user == 'petugas') {
+// --- 11. PETUGAS & ADMIN: LUNASI DENDA ---
+if (isset($_GET['lunasi_denda']) && ($role_user == 'petugas' || $role_user == 'admin')) {
     $id_pjm = (int)$_GET['lunasi_denda'];
     mysqli_query($conn, "UPDATE peminjaman SET denda = 0 WHERE id_peminjaman = $id_pjm");
     header("location: dashboard.php?pesan=denda_lunas");
@@ -225,7 +228,6 @@ if (isset($_GET['final_kembali']) && $role_user == 'petugas') {
                         WHERE id_peminjaman = $id_pjm");
     
     // MODIFIKASI: Stok hanya kembali jika kondisi 'Baik'
-    // Jika mengandung kata 'rusak' atau 'hilang', query di bawah ini tidak jalan
     if (strpos(strtolower($kondisi_akhir), 'rusak') === false && strpos(strtolower($kondisi_akhir), 'hilang') === false) {
         mysqli_query($conn, "UPDATE alat SET stok = stok + 1 WHERE id_alat = $id_alt");
     }

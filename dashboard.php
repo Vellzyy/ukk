@@ -364,7 +364,7 @@ if ($role == 'petugas' || $role == 'admin') {
                     <form action="aksi.php" method="POST" style="display:flex; gap:10px;">
                         <input type="text" name="nama_alat" placeholder="Nama Alat" required style="flex:2; background:#25272b; border:1px solid #3d3f44; color:#fff; padding:10px; border-radius:10px;">
                         <input type="number" name="stok" placeholder="Stok" required style="flex:1; background:#25272b; border:1px solid #3d3f44; color:#fff; padding:10px; border-radius:10px;">
-                        <button type="submit" name="tambah_alat" class="btn-action btn-success">💾 Simpan Alat</button>
+                        <button type="submit" name="tambah_alat" class="btn-action btn-success">💾 Tambah Alat</button>
                     </form>
                 </div>
             <?php endif; ?>
@@ -388,19 +388,29 @@ if ($role == 'petugas' || $role == 'admin') {
                         while($a = mysqli_fetch_assoc($sql_alat)) : 
                             $nama_kcl = strtolower((string)($a['nama_alat'] ?? ''));
                             $n = $nama_kcl; 
-                            $emoji_tabel = "⚽"; 
-                            if(strpos($nama_kcl, 'basket') !== false) $emoji_tabel = "🏀";
-                            elseif(strpos($nama_kcl, 'voli') !== false) $emoji_tabel = "🏐";
-                            elseif(strpos($nama_kcl, 'raket') !== false || strpos($nama_kcl, 'badminton') !== false) $emoji_tabel = "🏸";
-                            elseif(strpos($nama_kcl, 'tenis') !== false) $emoji_tabel = "🎾";
-                            elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji_tabel = "🏓";
-                            elseif(strpos($nama_kcl, 'matras') !== false) $emoji_tabel = "🧘";
-                            elseif(strpos($nama_kcl, 'lompat') !== false) $emoji_tabel = "🏃";
+                            $emoji = "⚽"; 
+                            if(strpos($nama_kcl, 'basket') !== false) $emoji = "🏀";
+                            elseif(strpos($nama_kcl, 'voli') !== false) $emoji = "🏐";
+                            elseif(strpos($nama_kcl, 'raket') !== false || strpos($nama_kcl, 'badminton') !== false) $emoji = "🏸";
+                            elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                            elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji = "🏓";
+                            elseif(strpos($nama_kcl, 'matras') !== false) $emoji = "🧘";
+                            elseif(strpos($nama_kcl, 'lompat') !== false) $emoji = "🏃";
+                            elseif(strpos($nama_kcl, 'kasti') !== false) $emoji = "🥎";
+                            elseif(strpos($nama_kcl, 'skipping') !== false) $emoji = "🪢";
+                            elseif(strpos($nama_kcl, 'american football') !== false) $emoji = "🏈";
+                            elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                            elseif(strpos($nama_kcl, 'baseball') !== false) $emoji = "⚾️";
+                            elseif(strpos($nama_kcl, 'hockey') !== false) $emoji = "🏒";
+                            elseif(strpos($nama_kcl, 'golf') !== false) $emoji = "🏑";
+                            elseif(strpos($nama_kcl, 'kriket') !== false) $emoji = "🏏";
+                            elseif(strpos($nama_kcl, 'boomerang') !== false) $emoji = "🪃";
+                            elseif(strpos($nama_kcl, 'lacrosse') !== false) $emoji = "🥍";
                         ?>
                         <tr>
                             <td>
                                 <div class="table-icon-wrapper">
-                                    <div class="table-emoji"><?= $emoji_tabel ?></div>
+                                    <div class="table-emoji"><?= $emoji ?></div>
                                     <div style="flex-grow:1">
                                         <b><?= $a['nama_alat'] ?></b>
                                     </div>
@@ -430,6 +440,21 @@ if ($role == 'petugas' || $role == 'admin') {
                             $emoji = "⚽"; 
                             if(strpos($nama_kcl, 'basket') !== false) $emoji = "🏀";
                             elseif(strpos($nama_kcl, 'voli') !== false) $emoji = "🏐";
+                            elseif(strpos($nama_kcl, 'raket') !== false || strpos($nama_kcl, 'badminton') !== false) $emoji = "🏸";
+                            elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                            elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji = "🏓";
+                            elseif(strpos($nama_kcl, 'matras') !== false) $emoji = "🧘";
+                            elseif(strpos($nama_kcl, 'lompat') !== false) $emoji = "🏃";
+                            elseif(strpos($nama_kcl, 'kasti') !== false) $emoji = "🥎";
+                            elseif(strpos($nama_kcl, 'skipping') !== false) $emoji = "🪢";
+                            elseif(strpos($nama_kcl, 'american football') !== false) $emoji = "🏈";
+                            elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                            elseif(strpos($nama_kcl, 'baseball') !== false) $emoji = "⚾️";
+                            elseif(strpos($nama_kcl, 'hockey') !== false) $emoji = "🏒";
+                            elseif(strpos($nama_kcl, 'golf') !== false) $emoji = "🏑";
+                            elseif(strpos($nama_kcl, 'kriket') !== false) $emoji = "🏏";
+                            elseif(strpos($nama_kcl, 'boomerang') !== false) $emoji = "🪃";
+                            elseif(strpos($nama_kcl, 'lacrosse') !== false) $emoji = "🥍";
                         ?>
                         <div class="card-item">
                             <span class="item-icon"><?= $emoji ?></span>
@@ -446,20 +471,55 @@ if ($role == 'petugas' || $role == 'admin') {
                 <?php endif; ?>
             </div>
 
-            <?php if($role == 'peminjam'): ?>
+<?php if($role == 'peminjam'): ?>
             <div class="content-card">
                 <h3>🔄 Pengembalian Alat</h3>
+                <div style="display: grid; gap: 12px;">
                 <?php 
                 $res_pjm_user = mysqli_query($conn, "SELECT peminjaman.*, alat.nama_alat FROM peminjaman JOIN alat ON peminjaman.id_alat = alat.id_alat WHERE id_user = '$id_user_skrg' AND status_pjm = 'disetujui'");
+                
                 if(mysqli_num_rows($res_pjm_user) > 0) {
                     while($p = mysqli_fetch_assoc($res_pjm_user)) {
-                        echo "<div style='display:flex; justify-content:space-between; align-items:center; background:#25272b; padding:15px; border-radius:12px; margin-bottom:10px;'>
-                                <b>📦 {$p['nama_alat']}</b>
-                                <button onclick='requestKembali({$p['id_peminjaman']})' class='btn-action btn-warning'>🚀 Kembali</button>
-                              </div>";
-                    }
-                } else { echo "<small>✨ Tidak ada alat yang perlu dikembalikan.</small>"; }
+                        // Logika Icon Otomatis
+                        $nama_kcl = strtolower((string)($p['nama_alat'] ?? ''));
+                        $emoji = "⚽"; 
+                        if(strpos($nama_kcl, 'basket') !== false) $emoji = "🏀";
+                        elseif(strpos($nama_kcl, 'voli') !== false) $emoji = "🏐";
+                        elseif(strpos($nama_kcl, 'raket') !== false || strpos($nama_kcl, 'badminton') !== false) $emoji = "🏸";
+                        elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                        elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji = "🏓";
+                        elseif(strpos($nama_kcl, 'matras') !== false) $emoji = "🧘";
+                        elseif(strpos($nama_kcl, 'lompat') !== false) $emoji = "🏃";
+                        elseif(strpos($nama_kcl, 'kasti') !== false) $emoji = "🥎";
+                        elseif(strpos($nama_kcl, 'skipping') !== false) $emoji = "🪢";
+                        elseif(strpos($nama_kcl, 'american football') !== false) $emoji = "🏈";
+                        elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                        elseif(strpos($nama_kcl, 'baseball') !== false) $emoji = "⚾️";
+                        elseif(strpos($nama_kcl, 'hockey') !== false) $emoji = "🏒";
+                        elseif(strpos($nama_kcl, 'golf') !== false) $emoji = "🏑";
+                        elseif(strpos($nama_kcl, 'kriket') !== false) $emoji = "🏏";
+                        elseif(strpos($nama_kcl, 'boomerang') !== false) $emoji = "🪃";
+                        elseif(strpos($nama_kcl, 'lacrosse') !== false) $emoji = "🥍";
                 ?>
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:#25272b; padding:16px; border-radius:18px; border: 1px solid #3d3f44;">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <div style="width:45px; height:45px; background:#18191c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; border: 1px solid #3d3f44;">
+                                    <?= $emoji ?>
+                                </div>
+                                <div>
+                                    <b style="display:block; color:#fff; font-size:15px;"><?= $p['nama_alat'] ?></b>
+                                    <small style="color:#93959c;">Status: Siap Dikembalikan</small>
+                                </div>
+                            </div>
+                            <button onclick="requestKembali(<?= $p['id_peminjaman'] ?>)" class="btn-action btn-warning" style="padding: 10px 20px;">🚀 KEMBALIKAN</button>
+                        </div>
+                <?php 
+                    }
+                } else { 
+                    echo "<div style='text-align:center; padding:20px; color:#93959c;'>✨ Tidak ada alat yang perlu dikembalikan.</div>"; 
+                }
+                ?>
+                </div>
             </div>
             <?php endif; ?>
 
@@ -517,7 +577,7 @@ if ($role == 'petugas' || $role == 'admin') {
                 </table>
             </div>
 
-        <?php elseif ($page == 'peminjaman_aktif'): ?>
+<?php elseif ($page == 'peminjaman_aktif'): ?>
             <div class="content-card">
                 <h3>📜 Daftar Peminjaman Aktif</h3>
                 <table>
@@ -531,10 +591,39 @@ if ($role == 'petugas' || $role == 'admin') {
                     <?php
                     $f = ($role == 'peminjam') ? "AND peminjaman.id_user = '$id_user_skrg'" : "";
                     $res_aktif = mysqli_query($conn, "SELECT peminjaman.*, users.username, alat.nama_alat FROM peminjaman JOIN users ON peminjaman.id_user = users.id_user JOIN alat ON peminjaman.id_alat = alat.id_alat WHERE status_pjm NOT IN ('selesai', 'ditolak') $f ORDER BY id_peminjaman DESC");
-                    while($l = mysqli_fetch_assoc($res_aktif)): ?>
+                    
+                    while($l = mysqli_fetch_assoc($res_aktif)): 
+                        // --- LOGIKA AUTO-ICON ---
+                        $nama_kcl = strtolower((string)($l['nama_alat'] ?? ''));
+                        $emoji = "⚽"; 
+                        if(strpos($nama_kcl, 'basket') !== false) $emoji = "🏀";
+                        elseif(strpos($nama_kcl, 'voli') !== false) $emoji = "🏐";
+                        elseif(strpos($nama_kcl, 'raket') !== false || strpos($nama_kcl, 'badminton') !== false) $emoji = "🏸";
+                        elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                        elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji = "🏓";
+                        elseif(strpos($nama_kcl, 'matras') !== false) $emoji = "🧘";
+                        elseif(strpos($nama_kcl, 'lompat') !== false) $emoji = "🏃";
+                        elseif(strpos($nama_kcl, 'kasti') !== false) $emoji = "🥎";
+                        elseif(strpos($nama_kcl, 'skipping') !== false) $emoji = "🪢";
+                        elseif(strpos($nama_kcl, 'american football') !== false) $emoji = "🏈";
+                        elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                        elseif(strpos($nama_kcl, 'baseball') !== false) $emoji = "⚾️";
+                        elseif(strpos($nama_kcl, 'hockey') !== false) $emoji = "🏒";
+                        elseif(strpos($nama_kcl, 'golf') !== false) $emoji = "🏑";
+                        elseif(strpos($nama_kcl, 'kriket') !== false) $emoji = "🏏";
+                        elseif(strpos($nama_kcl, 'boomerang') !== false) $emoji = "🪃";
+                        elseif(strpos($nama_kcl, 'lacrosse') !== false) $emoji = "🥍";
+                    ?>
                     <tr>
                         <td>👤 <?= $l['username'] ?></td>
-                        <td>📦 <?= $l['nama_alat'] ?></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="background: #18191c; width: 35px; height: 35px; display: flex; align-items: center; justify-content:center; border-radius: 8px; border: 1px solid #3d3f44; font-size: 18px;">
+                                    <?= $emoji ?>
+                                </span>
+                                <?= $l['nama_alat'] ?>
+                            </div>
+                        </td>
                         <td>🗓️ <?= $l['tgl_minta'] ?></td>
                         <td>
                             <span class="status-tag <?= ($l['status_pjm'] == 'disetujui') ? 'ready' : 'waiting' ?>">
@@ -556,60 +645,110 @@ if ($role == 'petugas' || $role == 'admin') {
             </div>
 
 <?php elseif ($page == 'riwayat'): ?>
-            <div class="content-card">
-                <h3>📖 Riwayat Aktivitas Lengkap</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Alat</th>
-                            <th>Tgl Pinjam</th>
-                            <th>Tgl Kembali</th>
-                            <th>Denda</th>
-                            <th>Status</th>
-                            <th>Kondisi/Ket</th>
-                            <?php if($role == 'petugas' || $role == 'admin'): ?>
-                                <th>Aksi</th>
-                            <?php endif; ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $f = ($role == 'peminjam') ? "AND peminjaman.id_user = '$id_user_skrg'" : "";
-                        $res_log = mysqli_query($conn, "SELECT peminjaman.*, users.username, alat.nama_alat FROM peminjaman JOIN users ON peminjaman.id_user = users.id_user JOIN alat ON peminjaman.id_alat = alat.id_alat WHERE status_pjm IN ('selesai', 'ditolak') $f ORDER BY id_peminjaman DESC");
-                        
-                        while($log = mysqli_fetch_assoc($res_log)): 
-                            $status_class = ($log['status_pjm'] == 'selesai') ? 'ready' : 'ditolak';
-                            $tgl_kembali = ($log['status_pjm'] == 'selesai') ? $log['tgl_kembali'] : '-';
-                            $denda_nilai = $log['denda'] ?? 0;
-                            $denda_teks = ($denda_nilai == 0 && $log['status_pjm'] == 'selesai') ? "✅ Lunas" : "Rp " . number_format($denda_nilai, 0, ',', '.');
-                            
-                            // Perbaikan variabel: kita pakai nama yang konsisten
-                            $keterangan_tampil = $log['kondisi_akhir'] ?? $log['alasan_tolak'] ?? '-';
-                        ?>
-                        <tr>
-                            <td><b>👤 <?= $log['username'] ?></b></td>
-                            <td>📦 <?= $log['nama_alat'] ?></td>
-                            <td><small>🗓️ <?= $log['tgl_minta'] ?></small></td>
-                            <td><small>🔙 <?= $tgl_kembali ?></small></td>
-                            <td style="color: <?= ($denda_nilai == 0) ? '#00ff88' : '#ff4d4d' ?>; font-weight: bold;">
-                                <?= $denda_teks ?>
-                            </td>
-                            <td><span class="status-tag <?= $status_class ?>"><?= strtoupper($log['status_pjm']) ?></span></td>
-                            <td><i style="font-size: 12px; color: #93959c;"><?= htmlspecialchars($keterangan_tampil) ?></i></td>
-        
-                            <?php if($role == 'petugas' || $role == 'admin'): ?>
-                            <td>
-                                <?php if($denda_nilai > 0): ?>
-                                    <a href="aksi.php?lunasi_denda=<?= $log['id_peminjaman'] ?>" class="btn-action btn-success" style="padding: 5px 10px; font-size: 10px;" onclick="return confirm('Denda sudah dibayar lunas? 💸')">💸 LUNASI</a>
-                                <?php else: ?>
-                                    -
-                                <?php endif; ?>
-                            </td>
-                            <?php endif; ?>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
+    <div class="content-card">
+        <h3>📖 Riwayat Aktivitas Lengkap</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Alat</th>
+                    <th>Tgl Pinjam</th>
+                    <th>Tgl Kembali</th>
+                    <th>Denda</th>
+                    <th>Status</th>
+                    <th>Kondisi/Ket</th>
+                    <?php if($role == 'petugas' || $role == 'admin'): ?>
+                        <th>Aksi</th>
+                    <?php endif; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $f = ($role == 'peminjam') ? "AND peminjaman.id_user = '$id_user_skrg'" : "";
+                $res_log = mysqli_query($conn, "SELECT peminjaman.*, users.username, alat.nama_alat FROM peminjaman JOIN users ON peminjaman.id_user = users.id_user JOIN alat ON peminjaman.id_alat = alat.id_alat WHERE status_pjm IN ('selesai', 'ditolak') $f ORDER BY id_peminjaman DESC");
+                
+                while($log = mysqli_fetch_assoc($res_log)): 
+                    $status_class = ($log['status_pjm'] == 'selesai') ? 'ready' : 'ditolak';
+                    $tgl_kembali = ($log['status_pjm'] == 'selesai') ? $log['tgl_kembali'] : '-';
+                    $denda_nilai = $log['denda'] ?? 0;
+                    $ket = strtolower($log['kondisi_akhir'] ?? '');
+
+                    // --- LOGIKA DENDA CUSTOM SESUAI PERMINTAAN ---
+                    if ($denda_nilai > 0) {
+                        // Masih ada denda (Belum Bayar)
+                        $denda_tampil = "Rp " . number_format($denda_nilai, 0, ',', '.');
+                        $warna_denda = "#ff4d4d"; // Merah
+                    } else {
+                        // Denda 0, tapi cek keterlambatan/kerusakan
+                        $pernah_masalah = (strpos($ket, 'rusak') !== false || 
+                                           strpos($ket, 'hilang') !== false || 
+                                           strpos($ket, 'terlambat') !== false || 
+                                           strpos($ket, 'telat') !== false);
+
+                        if ($pernah_masalah) {
+                            $denda_tampil = "✅ Lunas";
+                            $warna_denda = "#00ff88"; // Hijau
+                        } else {
+                            $denda_tampil = "Rp 0";
+                            $warna_denda = "#93959c"; // Abu-abu
+                        }
+                    }
+
+                    $keterangan_tampil = $log['kondisi_akhir'] ?? $log['alasan_tolak'] ?? '-';
+
+                    // --- LOGIKA AUTO-ICON ---
+                    $nama_kcl = strtolower((string)($log['nama_alat'] ?? ''));
+                    $emoji = "⚽"; 
+                    if(strpos($nama_kcl, 'basket') !== false) $emoji = "🏀";
+                    elseif(strpos($nama_kcl, 'voli') !== false) $emoji = "🏐";
+                    elseif(strpos($nama_kcl, 'raket') !== false || strpos($nama_kcl, 'badminton') !== false) $emoji = "🏸";
+                    elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                    elseif(strpos($nama_kcl, 'pingpong') !== false) $emoji = "🏓";
+                    elseif(strpos($nama_kcl, 'matras') !== false) $emoji = "🧘";
+                    elseif(strpos($nama_kcl, 'lompat') !== false) $emoji = "🏃";
+                    elseif(strpos($nama_kcl, 'kasti') !== false) $emoji = "🥎";
+                    elseif(strpos($nama_kcl, 'skipping') !== false) $emoji = "🪢";
+                    elseif(strpos($nama_kcl, 'american football') !== false) $emoji = "🏈";
+                    elseif(strpos($nama_kcl, 'tenis') !== false) $emoji = "🎾";
+                    elseif(strpos($nama_kcl, 'baseball') !== false) $emoji = "⚾️";
+                    elseif(strpos($nama_kcl, 'hockey') !== false) $emoji = "🏒";
+                    elseif(strpos($nama_kcl, 'golf') !== false) $emoji = "🏑";
+                    elseif(strpos($nama_kcl, 'kriket') !== false) $emoji = "🏏";
+                    elseif(strpos($nama_kcl, 'boomerang') !== false) $emoji = "🪃";
+                    elseif(strpos($nama_kcl, 'lacrosse') !== false) $emoji = "🥍";
+                ?>
+                <tr>
+                    <td><b>👤 <?= $log['username'] ?></b></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="background: #18191c; width: 32px; height: 32px; display: flex; align-items: center; justify-content:center; border-radius: 6px; border: 1px solid #3d3f44; font-size: 16px;">
+                                <?= $emoji ?>
+                            </span>
+                            <span><?= $log['nama_alat'] ?></span>
+                        </div>
+                    </td>
+                    <td><small>🗓️ <?= $log['tgl_minta'] ?></small></td>
+                    <td><small>🔙 <?= $tgl_kembali ?></small></td>
+                    
+                    <td style="color: <?= $warna_denda ?>; font-weight: bold;">
+                        <?= $denda_tampil ?>
+                    </td>
+
+                    <td><span class="status-tag <?= $status_class ?>"><?= strtoupper($log['status_pjm']) ?></span></td>
+                    <td><i style="font-size: 12px; color: #93959c;"><?= htmlspecialchars($keterangan_tampil) ?></i></td>
+
+                    <?php if($role == 'petugas' || $role == 'admin'): ?>
+                    <td>
+                        <?php if($denda_nilai > 0): ?>
+                            <a href="aksi.php?lunasi_denda=<?= $log['id_peminjaman'] ?>" class="btn-action btn-success" style="padding: 5px 10px; font-size: 10px; text-decoration: none; display: inline-block;" onclick="return confirm('Denda sudah dibayar lunas? 💸')">💸 LUNASI</a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                    <?php endif; ?>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
